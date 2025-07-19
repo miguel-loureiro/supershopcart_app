@@ -3,11 +3,12 @@ package com.supershopcart.models;
 import jakarta.persistence.*;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Set;
+import java.util.TimeZone;
 
+@Entity
 public class ShopCart {
 
     @Id
@@ -20,42 +21,27 @@ public class ShopCart {
     @Column(name = "created_at", updatable = false)
     private long createdAt;
 
-    @ManyToMany
-    @JoinTable(
-            name = "shopcart_shopper",
-            joinColumns = @JoinColumn(name = "shopcart_id"),
-            inverseJoinColumns = @JoinColumn(name = "shopper_id")
-    )
-    private HashSet<Shopper> shoppers = new HashSet<>();
-
     @OneToMany(mappedBy = "shopCartList", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<GroceryItem> items = new ArrayList<>();
-
+    private Set<GroceryItem> items = new HashSet<>();
 
     public ShopCart() {
         this.createdAt = System.currentTimeMillis();
         this.identifier = "cart_" + this.createdAt;
     }
 
-    /**
-     * Returns a short date key in ddMMyyyy format (for filtering).
-     */
     @Transient
     public String getDateKeyForQuery() {
         SimpleDateFormat dateOnly = new SimpleDateFormat("ddMMyyyy");
+        dateOnly.setTimeZone(TimeZone.getDefault());
         return dateOnly.format(new Date(this.createdAt));
     }
 
-    /**
-     * This method will generate a String that represents the date in a specific format (ddMMyyyy) for helping queries
-     * @param millis
-     * @return String with the format ddMMyyyy from the parameter millis
-     */
     private String generateDateTimeIdentifier(long millis) {
-
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         return formatter.format(new Date(millis));
     }
+
+    // Getters and Setters
 
     public Long getId() {
         return id;
@@ -81,19 +67,11 @@ public class ShopCart {
         this.createdAt = createdAt;
     }
 
-    public HashSet<Shopper> getShoppers() {
-        return shoppers;
-    }
-
-    public void setShoppers(HashSet<Shopper> shoppers) {
-        this.shoppers = shoppers;
-    }
-
-    public List<GroceryItem> getItems() {
+    public Set<GroceryItem> getItems() {
         return items;
     }
 
-    public void setItems(List<GroceryItem> items) {
+    public void setItems(Set<GroceryItem> items) {
         this.items = items;
     }
 }
